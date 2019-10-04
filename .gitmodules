@@ -1,0 +1,3 @@
+[submodule "laradock-tula-events"]
+	path = laradock-tula-events
+	url = https://github.com/Laradock/laradock.git
