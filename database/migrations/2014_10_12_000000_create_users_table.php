@@ -25,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->string('name_organization',100);
             $table->tinyInteger('sex');
             $table->string('avatar');
+            $table->timestamps();
             $table->rememberToken();
         });
     }
