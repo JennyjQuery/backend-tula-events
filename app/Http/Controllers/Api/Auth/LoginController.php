@@ -12,41 +12,40 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 use App\Rules\EmailOrPhone;
 
 
-class LoginController
+class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
     /**
      * Send the response after the user was authenticated.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse | array
      */
     protected function sendLoginResponse(Request $request)
     {
         $this->clearLoginAttempts($request);
-
         $user = $this->guard()->user();
-
-        $personalAccessToken = $user->createToken(config('auth.oauth_client_name'));
-
+        $personalAccessToken = $user->createToken(config('auth.auth_client_name'));
         $user->withAccessToken($personalAccessToken->token);
-
-        $model = $user;
-        if ($user->hasRole('provider')) {
-            $model = ProviderAuthorized::first();
-        }
-
-        return array_merge($model->toArray(), ['api_token' => $personalAccessToken->accessToken]);
+        return array_merge($user->toArray(), ['api_token' => $personalAccessToken->accessToken]);
     }
 
     /**
      * Delete token user has authorized with
      */
-    public function logout()
+
+
+    /*    public function logout()
+        {
+            // delete token and related device (by database constraint ON CASCADE)
+            Auth::user()->token()->delete();
+        }*/
+    public function logout(Request $request)
     {
-        // delete token and related device (by database constraint ON CASCADE)
-        Auth::user()->token()->delete();
+        $request->user()->token()->revoke();
+        //Auth::user()->token()->delete();
+        //Auth::logout();
     }
 
     /**
@@ -62,16 +61,16 @@ class LoginController
     /**
      * Validate the user login request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return void
      */
-    protected function validateLogin(Request $request)
-    {
-        $this->validate($request, [
-            $this->username() => ['required', 'string', new EmailOrPhone()],
-            'password' => 'required|string',
-        ]);
-    }
+    /*    protected function validateLogin(Request $request)
+        {
+            $this->validate($request, [
+                $this->username() => ['required', 'string', new EmailOrPhone()],
+                'password' => 'required|string',
+            ]);
+        }*/
 
     /**
      * Get the needed authorization credentials from the request.
@@ -80,7 +79,7 @@ class LoginController
      *
      * Simply say just rename 'login' key to 'email' or 'phone' based on 'login' value
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
     protected function credentials(Request $request)
@@ -92,7 +91,7 @@ class LoginController
         if ($this->is_email($login)) {
             $credentials['email'] = $login;
         } else {
-            $credentials['phone'] = PhoneNumber::make($login, 'RU' )->formatE164();
+            $credentials['phone'] = PhoneNumber::make($login, 'RU')->formatE164();
         }
 
         $credentials['password'] = $request->input('password');
@@ -106,8 +105,9 @@ class LoginController
      * @param string $value
      * @return bool
      */
-    protected function is_email($value) {
-        return (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
+    protected function is_email($value)
+    {
+        return (bool)filter_var($value, FILTER_VALIDATE_EMAIL);
     }
 
 }

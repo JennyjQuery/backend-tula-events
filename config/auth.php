@@ -1,6 +1,16 @@
 <?php
 
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | OAuth Client Name
+    |--------------------------------------------------------------------------
+    |
+    | Personal client name for api authentication
+    |
+    */
+
+    'auth_client_name' => 'TulaAfisha Personal Access Client',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +52,7 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
             'hash' => false,
         ],
