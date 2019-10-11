@@ -12,6 +12,7 @@
         "barryvdh/laravel-cors": "^0.11.4",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
+        "jackmartin/laravel-yandex-geocode": "^1.2",
         "laravel/framework": "^6.0",
         "laravel/passport": "^7.5",
         "laravel/tinker": "^1.0",

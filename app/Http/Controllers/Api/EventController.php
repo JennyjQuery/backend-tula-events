@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Event;
-use App\Models\Organizer;
+use App\Models\User;
 
 class EventController extends Controller
 {
@@ -17,24 +17,25 @@ class EventController extends Controller
 
     public function createEvent(Request $request)
     {
-        print_r($request->all());
-        die();
         $this->validateEvent($request);
-        $organizer = Organizer::first();
+        $user = User::first();
+
+
         $event = Event::create([
             'name' => $request->name,
             'place' => $request->place,
-            'date_from' => $organizer->date_from,
+            'geolocation' => $request->geolocation,
+            'date_from' => $request->date_from,
             'date_to' => $request->date_to,
             'type' => $request->type,
-            'lat' => $request->lat,
-            'lon' => $request->lon,
+            'lat' => $this->getLatCoordinates($request->geolocation),
+            'lon' => $this->getLonCoordinates($request->geolocation),
             'description' => $request->description,
             'image' => $request->image,
             'autorization' => $request->autorization
         ]);
         $events_users = Event_Users::create([
-            'user_id' => $organizer->id,
+            'user_id' => $user->id,
             'event_id' => $request->id
 
         ]);
@@ -44,12 +45,12 @@ class EventController extends Controller
     public function updateEvent(Request $request)
     {
         $this->validateEvent($request);
-        $organizer = Organizer::first();
+        $user = User::first();
         $event = UserEvents::find($request->id);
         if (!$event) {
             abort(404);
         }
-        if ($event->user_id != $organizer->id) {
+        if ($event->user_id != $user->id) {
             abort(403);
         }
         if ($event->url) {
@@ -58,11 +59,12 @@ class EventController extends Controller
         $event = Event::create([
             'name' => $request->name,
             'place' => $request->place,
-            'date_from' => $organizer->date_from,
+            'geolocation' => $request->geolocation,
+            'date_from' => $user->date_from,
             'date_to' => $request->date_to,
             'type' => $request->type,
-            'lat' => $request->lat,
-            'lon' => $request->lon,
+            'lat' => $this->getLatCoordinates($request->geolocation),
+            'lon' => $this->getLonCoordinates($request->geolocation),
             'description' => $request->description,
             'image' => $request->image,
             'autorization' => $request->autorization
@@ -87,12 +89,22 @@ class EventController extends Controller
             'date_from' => 'required|date',
             'date_to' => 'required|date',
             'type' => 'required|string',
-            'lat' => 'required|double|regex:/^\d+(\.\d{1,2})?$/',
-            'lon' => 'required|double|regex:/^\d+(\.\d{1,2})?$/',
-            'description' => 'required|text',
+            'lat' => 'nullable',
+            'lon' => 'nullable',
+            'description' => 'required',
             'image' => 'nullable|string',
-            'autorization' => 'required|tinyInt'
+            'autorization' => 'required'
         ];
         $this->validate($request, $rules);
+    }
+    protected function getLatCoordinates($geolocation){
+
+        $data = YaGeo::make()->setQuery(`$geolocation`)->load();
+        return $lat = $data->getResponse()->getLatitude();
+    }
+    protected function getLonCoordinates($geolocation){
+
+        $data = YaGeo::make()->setQuery(`$geolocation`)->load();
+        return $lon = $data->getResponse()->getLongitude();
     }
 }

@@ -15,16 +15,17 @@ class CreateEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->integerIncrements('id');
-            $table->string('name',100)->nullable(false);
-            $table->string('place',100)->nullable(false);;
-            $table->dateTime('date_from')->nullable(false);;
-            $table->dateTime('date_to')->nullable(false);;
-            $table->integer('type')->nullable(false);;
-            $table->float('lat')->nullable(false);;
-            $table->float('lon')->nullable(false);;
-            $table->text('description')->nullable(false);;
-            $table->string('image',255)->nullable(false);;
-            $table->tinyInteger('autorization')->nullable(false);;
+            $table->string('name',255)->nullable(false);
+            $table->string('place',255)->nullable(false);
+            $table->string('geolocation',255)->nullable(false);
+            $table->dateTime('date_from')->nullable(false);
+            $table->dateTime('date_to')->nullable(false);
+            $table->integer('type')->nullable(false);
+            $table->float('lat')->nullable();
+            $table->float('lon')->nullable();
+            $table->text('description')->nullable(false);
+            $table->string('image',255)->nullable();
+            $table->tinyInteger('autorization')->nullable(false);
             $table->timestamps();
         });
     }
