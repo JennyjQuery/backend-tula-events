@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Organizer;
+
 class EventController extends Controller
 {
     /**
      * Send the response after the user was authenticated.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse | array
      */
 
     public function createEvent(Request $request)
@@ -41,20 +41,20 @@ class EventController extends Controller
         return $event;
     }
 
-    public function updateEvent(Request $request){
+    public function updateEvent(Request $request)
+    {
         $this->validateEvent($request);
         $organizer = Organizer::first();
         $event = UserEvents::find($request->id);
-        if (!$event){
+        if (!$event) {
             abort(404);
         }
-        if ($event->user_id != $organizer->id){
+        if ($event->user_id != $organizer->id) {
             abort(403);
         }
-/*        if ($event->url) {
+        if ($event->url) {
             abort(409);
-        }*/
-
+        }
         $event = Event::create([
             'name' => $request->name,
             'place' => $request->place,
@@ -71,15 +71,19 @@ class EventController extends Controller
 
     }
 
-    public function getEvent(Request $request){}
+    public function getEvent(Request $request)
+    {
+    }
 
-    public function updateStatusEvent(Request $request){}
+    public function updateStatusEvent(Request $request)
+    {
+    }
 
     protected function validateEvent(Request $request)
     {
         $rules = [
             'name' => 'required|string',
-            'place' =>'required|string',
+            'place' => 'required|string',
             'date_from' => 'required|date',
             'date_to' => 'required|date',
             'type' => 'required|string',
