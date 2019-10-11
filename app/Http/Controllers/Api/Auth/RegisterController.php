@@ -3,15 +3,10 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Redirect;
-use Propaganistas\LaravelPhone\PhoneNumber;
-use App\Rules\EmailOrPhone;
-use App\Jobs\SendVerificationEmail;
-
 class RegisterController extends LoginController
 {
     /**
@@ -22,6 +17,8 @@ class RegisterController extends LoginController
      */
     public function register(Request $request)
     {
+        print_r($request->all());
+        die();
         $rules = [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
@@ -36,6 +33,7 @@ class RegisterController extends LoginController
 
         $this->validate($request, $rules);
         $user = $this->createUser($request->all());
+        $user->assignRole('participant');
 
 
         Auth::login($user);
@@ -74,7 +72,6 @@ class RegisterController extends LoginController
      */
     public function registerOrganizer(Request $request)
     {
-
         $rules = [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
@@ -98,23 +95,11 @@ class RegisterController extends LoginController
 
         // create user for login
         $user = $this->createUser($data);
-        $user->assignRole('organization');
-        dispatch(new SendVerificationEmail($user));
+        $user->assignRole('organizer');
+        Auth::login($user);
 
-        /*
-                // then create provider
-                $provider = Organizer::create([
-                    'email' => $data['email'],
-                    'password' => bcrypt($data['password']),
-                    'name' => $data['name'],
-                    'surname' => $data['surname'],
-                    'name_organization' =>  $data['name_organization'],
-                    'phone' => $data['phone'],
-                    'date_of_birth' => $data['date_of_birth'],
-                    'sex' => $data['sex'],
-                    'avatar' => $data['avatar']
-                ]);
-                return $provider;*/
+        return $this->sendLoginResponse($request);
+        //dispatch(new SendVerificationEmail($user));
     }
 
     /**

@@ -4,12 +4,9 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProviderAuthorized;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Propaganistas\LaravelPhone\PhoneNumber;
-use App\Rules\EmailOrPhone;
 
 
 class LoginController extends Controller
@@ -25,10 +22,15 @@ class LoginController extends Controller
     protected function sendLoginResponse(Request $request)
     {
         $this->clearLoginAttempts($request);
+
         $user = $this->guard()->user();
+
         $personalAccessToken = $user->createToken(config('auth.auth_client_name'));
+
         $user->withAccessToken($personalAccessToken->token);
+
         return array_merge($user->toArray(), ['api_token' => $personalAccessToken->accessToken]);
+
     }
 
     /**
@@ -47,6 +49,19 @@ class LoginController extends Controller
         //Auth::user()->token()->delete();
         //Auth::logout();
     }
+    /**
+     * Validate the user login request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+  /*  protected function validateLogin(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required'|'string' ,
+            'password' => 'required|string',
+        ]);
+    }*/
 
     /**
      * Get the login username to be used by the controller.
@@ -55,7 +70,7 @@ class LoginController extends Controller
      */
     public function username()
     {
-        return 'login';
+        return 'email';
     }
 
     /**
@@ -82,7 +97,7 @@ class LoginController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return array
      */
-    protected function credentials(Request $request)
+/*    protected function credentials(Request $request)
     {
         $credentials = [];
 
@@ -97,7 +112,7 @@ class LoginController extends Controller
         $credentials['password'] = $request->input('password');
 
         return $credentials;
-    }
+    }*/
 
     /**
      * Test if value a valid email

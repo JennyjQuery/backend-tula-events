@@ -3,14 +3,13 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
+
     protected $table = 'events';
     protected $fillable = [
-        'id',
         'name',
         'place',
         'date_from',
@@ -20,9 +19,7 @@ class Event extends Model
         'lon',
         'description',
         'image',
-        'autorization',
-        'created_at',
-        'updated_at'
+        'autorization'
     ];
 
 

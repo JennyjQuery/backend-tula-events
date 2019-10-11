@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Passport\PersonalAccessTokenResult;
 
 class User extends Authenticatable
 {
@@ -25,6 +27,8 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $primaryKey = 'id';
+
+    protected $guard_name = 'api';
 
     protected $fillable = [
         'email',
@@ -55,4 +59,19 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function createToken($name, array $scopes = []): PersonalAccessTokenResult {
+        if (!$scopes) {
+            $scopes = $this
+                ->getAllPermissions()
+                ->pluck('name')
+                ->toArray();
+        }
+
+        return $this->traitCreateToken($name, $scopes);
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 }
