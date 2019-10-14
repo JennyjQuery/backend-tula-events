@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "99143a263e3aafd6ff6ccaf605956e00",
+    "content-hash": "c7fd650b38b2264cd9680862f61b61a4",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -4510,6 +4510,51 @@
                 "environment"
             ],
             "time": "2019-09-10T21:37:39+00:00"
+        },
+        {
+            "name": "yandex/geo",
+            "version": "v1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yandex-php/php-yandex-geo.git",
+                "reference": "0660fba08a8cf0380ce118d8259183be3d0b3840"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yandex-php/php-yandex-geo/zipball/0660fba08a8cf0380ce118d8259183be3d0b3840",
+                "reference": "0660fba08a8cf0380ce118d8259183be3d0b3840",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Yandex\\Geo": "source/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "The MIT License (MIT)"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Kuznetsov",
+                    "email": "kuznetsov2d@gmail.com",
+                    "homepage": "http://kuznetsov.io"
+                }
+            ],
+            "description": "PHP-library for interactions with geo-coding Yandex.Maps",
+            "keywords": [
+                "api",
+                "geo",
+                "geocode",
+                "geocoder",
+                "maps",
+                "yandex"
+            ],
+            "time": "2019-07-16T08:29:17+00:00"
         },
         {
             "name": "zendframework/zend-diactoros",

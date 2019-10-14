@@ -18,7 +18,8 @@
         "laravel/tinker": "^1.0",
         "laravel/ui": "^1.0",
         "spatie/laravel-permission": "^3.0",
-        "tymon/jwt-auth": " ^1.0.0-rc.2"
+        "tymon/jwt-auth": " ^1.0.0-rc.2",
+        "yandex/geo": "^1.2"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

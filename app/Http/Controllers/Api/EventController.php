@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\StatusEvent;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\User;
+use App\Models\Events_Users;
+use Yandex\Geo\Api;
+use Yandex\Geocode\Facades\YandexGeocodeFacade as YandexGeocoding;
 
 class EventController extends Controller
 {
@@ -34,10 +38,9 @@ class EventController extends Controller
             'image' => $request->image,
             'autorization' => $request->autorization
         ]);
-        $events_users = Event_Users::create([
+        $events_users = Events_Users::create([
             'user_id' => $user->id,
             'event_id' => $request->id
-
         ]);
         return $event;
     }
@@ -70,15 +73,22 @@ class EventController extends Controller
             'autorization' => $request->autorization
         ]);
         return $event;
-
     }
 
     public function getEvent(Request $request)
     {
+
     }
 
-    public function updateStatusEvent(Request $request)
+    public function createStatusEvent(Request $request)
     {
+        $user = User::first();
+        $status = StatusEvent::create([
+            'event_id' => $request->id,
+            'user_id' => $user->id,
+            'status' => $request->id
+        ]);
+        return $status;
     }
 
     protected function validateEvent(Request $request)
@@ -86,6 +96,7 @@ class EventController extends Controller
         $rules = [
             'name' => 'required|string',
             'place' => 'required|string',
+            'geolocation' =>'required|string',
             'date_from' => 'required|date',
             'date_to' => 'required|date',
             'type' => 'required|string',
@@ -97,14 +108,22 @@ class EventController extends Controller
         ];
         $this->validate($request, $rules);
     }
-    protected function getLatCoordinates($geolocation){
+    protected function getLatCoordinates(Request $request){
+        $geolocation = $request->geolocation;
+        $api = new Api();
+        $api->setQuery($geolocation)->load();
+        print_r($api);
+        die();
+        $response = $api->getResponse();
+        print_r($response);
+        die();
+        $response->getLatitude();
 
-        $data = YaGeo::make()->setQuery(`$geolocation`)->load();
-        return $lat = $data->getResponse()->getLatitude();
+        return $lat = $api->getResponse()->getLatitude();
     }
     protected function getLonCoordinates($geolocation){
-
-        $data = YaGeo::make()->setQuery(`$geolocation`)->load();
-        return $lon = $data->getResponse()->getLongitude();
+        $api = new Api();
+        $api->setQuery($geolocation)->load();
+        return $lon = $api->getResponse()->getLongitude();
     }
 }

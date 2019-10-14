@@ -51,14 +51,14 @@ Route::group(['middleware' => $middleware], function () {
         //ORGANIZER
         Route::group(['middleware' => 'role:organizer'], function () {
             //Organizer event
-            Route::post('/user/event', 'EventController@createEvent');
+            Route::post('/user/event', 'EventController@getLatCoordinates');
             Route::put('/user/event/update/{id}', 'EventController@updateEvent');
         });
 
         //PARTICIPANT
         Route::group(['middleware' => 'role:participant'], function () {
             //Participant event
-            Route::put('/user/event/status', 'EventController@updateStatusEvent');
+            Route::put('/user/event/status', 'EventController@createStatusEvent');
             Route::put('/user/review', 'ReviewController@addEventFeedback');
         });
     });
