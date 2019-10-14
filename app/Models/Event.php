@@ -19,7 +19,8 @@ class Event extends Model
         'lon',
         'description',
         'image',
-        'autorization'
+        'autorization',
+        'geolocation'
     ];
 
 

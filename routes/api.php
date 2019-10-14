@@ -51,7 +51,7 @@ Route::group(['middleware' => $middleware], function () {
         //ORGANIZER
         Route::group(['middleware' => 'role:organizer'], function () {
             //Organizer event
-            Route::post('/user/event', 'EventController@getLatCoordinates');
+            Route::post('/user/event', 'EventController@createEvent');
             Route::put('/user/event/update/{id}', 'EventController@updateEvent');
         });
 
