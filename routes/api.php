@@ -27,10 +27,10 @@ Route::group(['middleware' => $middleware], function () {
         Route::post('/register/organizer', 'RegisterController@registerOrganizer');
         Route::post('/login', 'LoginController@sendLoginResponse');
 
-        Route::get('/event/{date_from?}/{date_to?}/{type?}/{place?}/{near_me?}/{page}', 'UnAuthUserController@getEvents');
-        Route::get('/event/map/{place}/{page}', 'UnAuthUserController@getEventsOnMap');
-        Route::get('/event/{id}', 'UnAuthController@getMoreInformation');
-        Route::put('/event/search/{name?}/{page}', 'UnAuthController@searchEvent');
+        Route::get('/event/{date_from?}/{date_to?}/{type?}/{place?}/{near_me?}/{page}', 'UserController@searchEvents');
+        Route::get('/event/map/{place}/{page}', 'EventController@getEventsOnMap');
+        Route::get('/event/{id}', 'EventController@getMoreInformation');
+        Route::put('/event/search/{name?}/{page}', 'EventController@searchEvent');
 
         Route::group(['middleware' => 'email.verified'], function () {
             Route::post('/login', 'LoginController@login');
@@ -43,7 +43,8 @@ Route::group(['middleware' => $middleware], function () {
     Route::group(['middleware' => 'auth:api'], function () {
 
         //User profile
-        Route::get('/user/event/{past?}/{page}', 'AuthUserController@getEvent');
+       // Route::get('/user/event/{past?}/{page}', 'EventController@getEvent');
+        Route::get('/user/event/get', 'User@getEvent');
         Route::put('/review/like', 'ReviewController@putLike');
         Route::get('/user', 'AuthUserController@getProfile');
         Route::get('/user/update', 'AuthUserController@updateProfile');

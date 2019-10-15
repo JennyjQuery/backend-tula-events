@@ -22,6 +22,7 @@ class Event extends Model
         'autorization',
         'geolocation'
     ];
-
-
+    public function creater() {
+        return $this->belongsTo(User::class);
+    }
 }

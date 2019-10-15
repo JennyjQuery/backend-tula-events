@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventsUsers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AuthUserController extends Controller
+class UserController extends Controller
 {
     public function getProfile()
     {
@@ -24,9 +23,10 @@ class AuthUserController extends Controller
 
 
     }
+
     public function updateProfile(Request $request)
     {
-        $organizer = User::first();
+        $organizer = Auth::user();
         $this->validate($request, [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
@@ -79,28 +79,24 @@ class AuthUserController extends Controller
         }
 
         Coordinates::set($baseBranch, 'address');*/
-
     }
     public function getEvent(Request $request)
     {
         $user = Auth::user();
         //get array "event_id" for user
-        $userEvents=$user->events()->get();
-        printf($userEvents);
+        $userEventsId = User::find($user->id)->events()->pluck('id');
+        printf($userEventsId);
         die();
-
-        $userEventsId = EventsUsers::whereHas('user_id', function($q,$user_id){
+        //$userEventsId=$user->events()->pluck('event_id')->to_array();
+/*        $userEventsId = EventsUsers::whereHas('user_id', function($q,$user_id){
             $q->where('user_id', '=', $user_id);
-        })->get();
+        })->get();*/
 
-        print_r($userEventsId);
-        die();
-        $userEvents = EventsUsers::with(['posts' => function ($q) {
-            $q->orderBy('created_at', 'desc');
-        }])->paginate(10);
+
         foreach ($userEventsId as $userEventId)
             return Event::where('id', $userEventId)
                 ->paginate(20);
 
     }
+
 }

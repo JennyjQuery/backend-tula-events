@@ -7,8 +7,9 @@ use App\Models\StatusEvent;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\User;
-use App\Models\Events_Users;
+use App\Models\EventsUsers;
 use App\Services\Yandex\Api;
+use Illuminate\Support\Facades\Auth;
 use Yandex\Geocode\Facades\YandexGeocodeFacade as YandexGeocoding;
 
 class EventController extends Controller
@@ -21,8 +22,9 @@ class EventController extends Controller
 
     public function createEvent(Request $request)
     {
+        //Insert into table "events"
         $this->validateEvent($request);
-        $user = User::first();
+        $user = Auth::user();
         $event = Event::create([
             'name' => $request->name,
             'place' => $request->place,
@@ -37,48 +39,87 @@ class EventController extends Controller
             'image' => $request->image,
             'autorization' => $request->autorization
         ]);
-        $events_users = Events_Users::create([
+        //Insert into table "events_users"
+/*        EventsUsers::create([
             'user_id' => $user->id,
-            //запрос id из базы
-            'event_id' => $request->id
-        ]);
+            'event_id' => $event->id
+        ]);*/
+        $user->organizerEvents()->attach($event->id);
         return $event;
     }
 
     public function updateEvent(Request $request)
     {
-        $this->validateEvent($request);
-        $user = User::first();
-        $event = UserEvents::find($request->id);
-        if (!$event) {
-            abort(404);
-        }
-        if ($event->user_id != $user->id) {
+        $user_id = Auth::user()->id;
+        $event = Event::firstOrFail($request->id);
+//get id event's creater
+        $creater_id = $event->creater()->pluck('id');
+        printf($creater_id);
+        die();
+
+        if ($user_id != $creater_id){
             abort(403);
         }
-        if ($event->url) {
-            abort(409);
+
+/*        $event = Event::findOrFail($request->id);
+               $eventUser = EventsUsers::findOrFail('event_id'=>$request->id);
+                if ($eventUser->provider_id != $user_id) {
+                    abort(403);
+                }
+        $eventUser = EventsUsers::where('event_id', '=', $request->id)
+            ->where('user_id', '=', $user_id);
+        if (!$eventUser) {
+            abort(404);
+        }*/
+
+        $this->validateEvent($request);
+        /*        $eventUser = EventsUsers::where('event_id',$request->id);
+                print_r($eventUser);
+                die();
+                $eventUser = EventsUsers::where('event_id', $request->id)
+                    ->where('user_id', $user);
+                if (!$eventUser) {
+                    abort(404);
+                }
+                if ($eventUser->user_id != $user) {
+                    abort(403);
+                }*/
+        foreach ($request->only([
+            'name',
+            'place',
+            'geolocation',
+            'date_from',
+            'date_to',
+            'type',
+            'description',
+            'image',
+            'autorization'
+        ]) as $key => $value) {
+            $event->{$key} = $value;
         }
-        $event = Event::create([
-            'name' => $request->name,
-            'place' => $request->place,
-            'geolocation' => $request->geolocation,
-            'date_from' => $user->date_from,
-            'date_to' => $request->date_to,
-            'type' => $request->type,
-            'lat' => $this->getLatCoordinates(),
-            'lon' => $this->getLonCoordinates(),
-            'description' => $request->description,
-            'image' => $request->image,
-            'autorization' => $request->autorization
-        ]);
+        $event->save();
         return $event;
     }
 
-    public function getEvent(Request $request)
+   /* public function getAuthUserEvent(Request $request)
     {
+        $user_id = Auth::user()->id;
+        //get array "event_id" for user
 
-    }
+        $userEventsId = EventsUsers::whereHas('user_id', function($q,$user_id){
+            $q->where('user_id', '=', $user_id);
+        })->get();
+
+        print_r($userEventsId);
+        die();
+        $userEvents = EventsUsers::with(['posts' => function ($q) {
+            $q->orderBy('created_at', 'desc');
+        }])->paginate(10);
+        foreach ($userEventsId as $userEventId)
+        return Event::where('id', $userEventId)
+            ->paginate(20);
+
+    }*/
 
     public function createStatusEvent(Request $request)
     {
@@ -91,12 +132,32 @@ class EventController extends Controller
         return $status;
     }
 
+    public function searchEvent(Request $request)
+    {
+        if ($request->type) {
+            $posts->where('type', $request->type);
+        }
+        if ($request->provider_id) {
+            $posts->where('provider_id', $request->provider_id);
+        }
+        if ($request->category_id) {
+            $posts->where('category_id', $request->category_id);
+        }
+    }
+    public function getMoreInformation(Request $request){
+
+    }
+    public function getEventsOnMap (Request $request){
+
+    }
+
+
     protected function validateEvent(Request $request)
     {
         $rules = [
             'name' => 'required|string',
             'place' => 'required|string',
-            'geolocation' =>'required|string',
+            'geolocation' => 'required|string',
             'date_from' => 'required|date',
             'date_to' => 'required|date',
             'type' => 'required|string',
@@ -108,7 +169,8 @@ class EventController extends Controller
         ];
         $this->validate($request, $rules);
     }
-    protected function getLatCoordinates($geolocation){
+    protected function getLatCoordinates($geolocation)
+    {
         $api = new Api('1.x');
         $api->setToken('afa8469a-c05d-432c-82da-5c9eb0a16360');
         $api
@@ -118,7 +180,8 @@ class EventController extends Controller
         return $lat = $response->getLatitude();
 
     }
-    protected function getLonCoordinates($geolocation){
+    protected function getLonCoordinates($geolocation)
+    {
         $api = new Api('1.x');
         $api->setToken('afa8469a-c05d-432c-82da-5c9eb0a16360');
         $api

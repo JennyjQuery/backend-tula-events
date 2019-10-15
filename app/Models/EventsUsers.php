@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Events_Users extends Model
+class EventsUsers extends Model
 {
     protected $table = 'events_users';
     protected $fillable = [

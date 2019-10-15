@@ -74,4 +74,12 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+    public function organizerEvents()
+    {
+        return $this->belongsToMany(Event::class,'events_users')->withTimestamps();
+    }
+    public function participantEvents()
+    {
+        return $this->belongsToMany(Event::class,'status_events')->withTimestamps();
+    }
 }
