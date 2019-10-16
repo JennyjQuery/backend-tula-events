@@ -20,9 +20,14 @@ class Event extends Model
         'description',
         'image',
         'autorization',
-        'geolocation'
+        'geolocation',
+        'organizer_id'
     ];
     public function creater() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'organizer_id');
     }
+    public function reviews() {
+        return $this->belongsToMany(Review::class,'reviews');
+    }
+
 }

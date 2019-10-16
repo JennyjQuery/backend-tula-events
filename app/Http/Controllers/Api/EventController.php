@@ -37,53 +37,20 @@ class EventController extends Controller
             'lon' => $this->getLonCoordinates($request->geolocation),
             'description' => $request->description,
             'image' => $request->image,
-            'autorization' => $request->autorization
+            'autorization' => $request->autorization,
+            'organizer_id'=>$user->id,
         ]);
-        //Insert into table "events_users"
-/*        EventsUsers::create([
-            'user_id' => $user->id,
-            'event_id' => $event->id
-        ]);*/
-        $user->organizerEvents()->attach($event->id);
         return $event;
     }
 
     public function updateEvent(Request $request)
     {
         $user_id = Auth::user()->id;
-        $event = Event::firstOrFail($request->id);
-//get id event's creater
-        $creater_id = $event->creater()->pluck('id');
-        printf($creater_id);
-        die();
-
-        if ($user_id != $creater_id){
+        $event = Event::where('id',$request->id)->firstOrFail();
+        if ($user_id != $event->organizer_id){
             abort(403);
         }
-
-/*        $event = Event::findOrFail($request->id);
-               $eventUser = EventsUsers::findOrFail('event_id'=>$request->id);
-                if ($eventUser->provider_id != $user_id) {
-                    abort(403);
-                }
-        $eventUser = EventsUsers::where('event_id', '=', $request->id)
-            ->where('user_id', '=', $user_id);
-        if (!$eventUser) {
-            abort(404);
-        }*/
-
         $this->validateEvent($request);
-        /*        $eventUser = EventsUsers::where('event_id',$request->id);
-                print_r($eventUser);
-                die();
-                $eventUser = EventsUsers::where('event_id', $request->id)
-                    ->where('user_id', $user);
-                if (!$eventUser) {
-                    abort(404);
-                }
-                if ($eventUser->user_id != $user) {
-                    abort(403);
-                }*/
         foreach ($request->only([
             'name',
             'place',
@@ -123,11 +90,11 @@ class EventController extends Controller
 
     public function createStatusEvent(Request $request)
     {
-        $user = User::first();
+        $user = Auth::user();
         $status = StatusEvent::create([
             'event_id' => $request->id,
             'user_id' => $user->id,
-            'status' => $request->id
+            'status' => $request->status
         ]);
         return $status;
     }
@@ -145,6 +112,8 @@ class EventController extends Controller
         }
     }
     public function getMoreInformation(Request $request){
+        //Получить отзывы и статистику
+
 
     }
     public function getEventsOnMap (Request $request){

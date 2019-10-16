@@ -26,6 +26,10 @@ class CreateEventsTable extends Migration
             $table->text('description')->nullable(false);
             $table->string('image',255)->nullable();
             $table->tinyInteger('autorization')->nullable(false);
+
+            $table->bigInteger('organizer_id')->nullable(false)->unsigned();
+            $table->foreign('organizer_id')->references('id')->on('users');
+
             $table->timestamps();
         });
     }

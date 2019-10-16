@@ -17,8 +17,6 @@ class RegisterController extends LoginController
      */
     public function register(Request $request)
     {
-        print_r($request->all());
-        die();
         $rules = [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
@@ -30,6 +28,8 @@ class RegisterController extends LoginController
             'avatar' => 'nullable|string',
             'name_organization' => 'nullable|string'
         ];
+
+
 
         $this->validate($request, $rules);
         $user = $this->createUser($request->all());
@@ -81,14 +81,6 @@ class RegisterController extends LoginController
             'avatar' => 'nullable|string',
             'name_organization' => 'required|string'
         ];
-
-       /* $this->validate($request, $rules);
-
-        $user = $this->createUser($request->all());
-
-        Auth::login($user);*/
-
-
 
         $this->validate($request, $rules);
         $data = $request->all();

@@ -23,12 +23,15 @@ Route::group(['middleware' => $middleware], function () {
     //UNAUTHORIZED USER
     Route::group(['namespace' => 'Auth'], function () {
 
-        Route::post('/register', 'RegisterController@register');
-        Route::post('/register/organizer', 'RegisterController@registerOrganizer');
-        Route::post('/login', 'LoginController@sendLoginResponse');
+        Route::post('/register', 'RegisterController@register');//да
+        Route::post('/register/organizer', 'RegisterController@registerOrganizer');//да
+        Route::post('/login', 'LoginController@sendLoginResponse');//да
 
         Route::get('/event/{date_from?}/{date_to?}/{type?}/{place?}/{near_me?}/{page}', 'UserController@searchEvents');
         Route::get('/event/map/{place}/{page}', 'EventController@getEventsOnMap');
+/*        //запрос на получение всех отзывов для event
+        Route::get('/event/{id}/rewiews', 'EventController@getEventReviews');*/
+
         Route::get('/event/{id}', 'EventController@getMoreInformation');
         Route::put('/event/search/{name?}/{page}', 'EventController@searchEvent');
 
@@ -44,23 +47,25 @@ Route::group(['middleware' => $middleware], function () {
 
         //User profile
        // Route::get('/user/event/{past?}/{page}', 'EventController@getEvent');
-        Route::get('/user/event/get', 'User@getEvent');
+
+        Route::get('/user/event', 'UserController@getEvents');//сравнение с текущей датой доделать
+
         Route::put('/review/like', 'ReviewController@putLike');
-        Route::get('/user', 'AuthUserController@getProfile');
-        Route::get('/user/update', 'AuthUserController@updateProfile');
+        Route::get('/user', 'UserController@getProfile');//да
+        Route::put('/user/update', 'UserController@updateProfile');//валидировать только измененные поля//изменение email и телефона//пароль сохраняется без шифровки
 
         //ORGANIZER
         Route::group(['middleware' => 'role:organizer'], function () {
             //Organizer event
-            Route::post('/user/event', 'EventController@createEvent');
-            Route::put('/user/event/update/{id}', 'EventController@updateEvent');
+            Route::post('/user/create', 'EventController@createEvent');//да
+            Route::put('/user/event/update/{id}', 'EventController@updateEvent');//да
         });
 
         //PARTICIPANT
         Route::group(['middleware' => 'role:participant'], function () {
             //Participant event
-            Route::put('/user/event/status', 'EventController@createStatusEvent');
-            Route::put('/user/review', 'ReviewController@addEventFeedback');
+            Route::put('/user/event/{id}/status', 'EventController@createStatusEvent');//да,но нет ключевого поля и добавляется id:0 к любой записи
+            Route::put('/user/event/{id}/review', 'ReviewController@createReview');
         });
     });
 
