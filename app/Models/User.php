@@ -79,24 +79,24 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification($token));
     }
 
-    public function organizerEvents($past,$now)
+    public function organizerEvents($past, $now)
     {
-/*        print_r($now);
-        $events = $this->hasMany(Event::class, 'organizer_id')->pluck('date_to');
-        //print_r(new DateTime('today'));
-        print_r($events);
-        die();*/
+        /*        print_r($now);
+                $events = $this->hasMany(Event::class, 'organizer_id')->pluck('date_to');
+                //print_r(new DateTime('today'));
+                print_r($events);
+                die();*/
         if ($past) {
-            return $this->hasMany(Event::class, 'organizer_id')->where('date_to' , '<=' , $now);
+            return $this->hasMany(Event::class, 'organizer_id')->where('date_to', '<=', $now);
 
-        } else return $this->hasMany(Event::class, 'organizer_id')->where('date_to','>',$now);
+        } else return $this->hasMany(Event::class, 'organizer_id')->where('date_to', '>', $now);
     }
 
-    public function participantEvents($past,$now)
+    public function participantEvents($past, $now)
     {
-        if($past){
-            return $this->belongsToMany(Event::class, 'status_events')->withTimestamps()->where('date_to'< $now);
-        }else return $this->belongsToMany(Event::class, 'status_events')->withTimestamps()->where('date_to'>= $now);
+        if ($past == 'true') {
+            return $this->belongsToMany(Event::class, 'status_events')->where('date_to', '<', $now);
+        } else return $this->belongsToMany(Event::class, 'status_events')->where('date_to', '>=', $now);
     }
 
     public function role()
@@ -104,8 +104,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id');
     }
 
-    public function reviews(){
-        return $this->hasMany(Review::class)->with('reviews');
+    public function reviews()
+    {
+        return $this->belongsToMany(Event::class, 'reviews');
     }
 
 }

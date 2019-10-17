@@ -19,9 +19,15 @@ class UserController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user_id = Auth::user()->id;
-        $user = User::where('id', $user_id)->firstOrFail();
-        $this->validateUser($request);
+        $user = Auth::user();
+        $request->validate([
+            'email' => 'email|unique:users,email,' . $user->id,
+            'name' => 'required|string',
+            'surname' => 'required|string',
+            'phone' => 'required|unique:users,phone,' . $user->id,
+            'avatar' => 'nullable|string',
+            'name_organization' => 'required|string'
+        ]);
         foreach ($request->only([
             'email',
             'password',
@@ -37,30 +43,17 @@ class UserController extends Controller
         return $user;
     }
 
-    public function validateUser(Request $request)
-    {
-        $rules = [
-            'email' => 'required|email|',
-            'password' => 'required|string|min:6|confirmed',
-            'name' => 'required|string',
-            'surname' => 'required|string',
-            'phone' => 'required|string|',
-            'avatar' => 'nullable|string',
-            'name_organization' => 'required|string'
-        ];
-        $this->validate($request, $rules);
-    }
-
     public function getEvents(Request $request)
     {
         $now = Carbon::now()->toDateTimeString();
         $user = Auth::user();
         if ($user->hasAnyRole('participant')) {
-            $events = $user->participantEvents($request->past, $now);
+            $events = $user->participantEvents($request->past , $now);
         }
         if ($user->hasAnyRole('organizer')) {
             $events = $user->organizerEvents($request->past, $now);
         }
+        //проверить на null
         return $events->simplePaginate(20);
     }
 }

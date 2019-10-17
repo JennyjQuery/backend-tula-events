@@ -8,9 +8,12 @@ class Review extends Model
 {
     protected $table = 'reviews';
 
+    protected $pivotColumns = ['comment'];
+
     protected $fillable = [
         'comment',
-        'date'
+        'user_id',
+        'event_id'
     ];
     //один ко многим
     public function event(){

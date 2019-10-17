@@ -19,6 +19,12 @@ if (!App::runningUnitTests()) {
 }
 
 Route::group(['middleware' => $middleware], function () {
+    //UNAUTHUSER
+    Route::get('/event/{date_from?}/{date_to?}/{type?}/{place?}/{near_me?}/{page}', 'UserController@getEventsOnMaimPage');//только запланированные и autorization=0
+    Route::get('/event/map/{place}/{page}', 'EventController@getEventsOnMap');
+                //MORE ABOUT EVENTS
+    Route::get('/event/{id}', 'EventController@getMoreInformation');//да?????????????
+    Route::put('/event/search/{name?}/{page}', 'EventController@searchEvent');
 
     //UNAUTHORIZED USER
     Route::group(['namespace' => 'Auth'], function () {
@@ -27,28 +33,19 @@ Route::group(['middleware' => $middleware], function () {
         Route::post('/register/organizer', 'RegisterController@registerOrganizer');//да
         Route::post('/login', 'LoginController@sendLoginResponse');//да
 
-        Route::get('/event/{date_from?}/{date_to?}/{type?}/{place?}/{near_me?}/{page}', 'UserController@searchEvents');
-        Route::get('/event/map/{place}/{page}', 'EventController@getEventsOnMap');
-/*        //запрос на получение всех отзывов для event
-        Route::get('/event/{id}/rewiews', 'EventController@getEventReviews');*/
-
-        Route::get('/event/{id}', 'EventController@getMoreInformation');
-        Route::put('/event/search/{name?}/{page}', 'EventController@searchEvent');
-
         Route::group(['middleware' => 'email.verified'], function () {
             Route::post('/login', 'LoginController@login');
             Route::post('/password/email', 'ForgotPasswordController@getResetToken');
             Route::post('/password/reset', 'ResetPasswordController@reset');
         });
     });
-
-    //USER
+    //AUTHUSER
     Route::group(['middleware' => 'auth:api'], function () {
 
         //User profile
-       // Route::get('/user/event/{past?}/{page}', 'EventController@getEvent');
+        // Route::get('/user/event/{past?}/{page}', 'EventController@getEvent');
 
-        Route::get('/user/event', 'UserController@getEvents');//сравнение с текущей датой доделать
+        Route::get('/user/event', 'UserController@getEvents');//да
 
         Route::put('/review/like', 'ReviewController@putLike');
         Route::get('/user', 'UserController@getProfile');//да
@@ -59,13 +56,15 @@ Route::group(['middleware' => $middleware], function () {
             //Organizer event
             Route::post('/user/create', 'EventController@createEvent');//да
             Route::put('/user/event/update/{id}', 'EventController@updateEvent');//да
+            Route::get('/event/{id}/statistic', 'EventController@statisticEvent');//да
         });
 
         //PARTICIPANT
         Route::group(['middleware' => 'role:participant'], function () {
             //Participant event
-            Route::put('/user/event/{id}/status', 'EventController@createStatusEvent');//да,но нет ключевого поля и добавляется id:0 к любой записи
-            Route::put('/user/event/{id}/review', 'ReviewController@createReview');
+
+            Route::put('/user/event/{id}/status', 'EventController@createStatusEvent');//да
+            Route::put('/user/event/{id}/review', 'ReviewController@createReview');//да
         });
     });
 

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\RatingReviews;
+use App\Models\Review;
 use App\Models\StatusEvent;
 use Illuminate\Http\Request;
 use App\Models\Event;
-use App\Models\User;
-use App\Models\EventsUsers;
 use App\Services\Yandex\Api;
 use Illuminate\Support\Facades\Auth;
-use Yandex\Geocode\Facades\YandexGeocodeFacade as YandexGeocoding;
 
 class EventController extends Controller
 {
@@ -38,7 +37,7 @@ class EventController extends Controller
             'description' => $request->description,
             'image' => $request->image,
             'autorization' => $request->autorization,
-            'organizer_id'=>$user->id,
+            'organizer_id' => $user->id,
         ]);
         return $event;
     }
@@ -46,8 +45,8 @@ class EventController extends Controller
     public function updateEvent(Request $request)
     {
         $user_id = Auth::user()->id;
-        $event = Event::where('id',$request->id)->firstOrFail();
-        if ($user_id != $event->organizer_id){
+        $event = Event::where('id', $request->id)->firstOrFail();
+        if ($user_id != $event->organizer_id) {
             abort(403);
         }
         $this->validateEvent($request);
@@ -68,25 +67,25 @@ class EventController extends Controller
         return $event;
     }
 
-   /* public function getAuthUserEvent(Request $request)
-    {
-        $user_id = Auth::user()->id;
-        //get array "event_id" for user
+    /* public function getAuthUserEvent(Request $request)
+     {
+         $user_id = Auth::user()->id;
+         //get array "event_id" for user
 
-        $userEventsId = EventsUsers::whereHas('user_id', function($q,$user_id){
-            $q->where('user_id', '=', $user_id);
-        })->get();
+         $userEventsId = EventsUsers::whereHas('user_id', function($q,$user_id){
+             $q->where('user_id', '=', $user_id);
+         })->get();
 
-        print_r($userEventsId);
-        die();
-        $userEvents = EventsUsers::with(['posts' => function ($q) {
-            $q->orderBy('created_at', 'desc');
-        }])->paginate(10);
-        foreach ($userEventsId as $userEventId)
-        return Event::where('id', $userEventId)
-            ->paginate(20);
+         print_r($userEventsId);
+         die();
+         $userEvents = EventsUsers::with(['posts' => function ($q) {
+             $q->orderBy('created_at', 'desc');
+         }])->paginate(10);
+         foreach ($userEventsId as $userEventId)
+         return Event::where('id', $userEventId)
+             ->paginate(20);
 
-    }*/
+     }*/
 
     public function createStatusEvent(Request $request)
     {
@@ -99,9 +98,31 @@ class EventController extends Controller
         return $status;
     }
 
-    public function searchEvent(Request $request)
+    public function getMoreInformation(Request $request)
     {
-        if ($request->type) {
+        return
+            Event::where('id', $request->id)
+                ->with('reviews')
+                ->first();
+    }
+
+    public function statisticEvent(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $event = Event::where('id', $request->id)->firstOrFail();
+        if ($user_id != $event->organizer_id) {
+            abort(403);
+        }
+        $participants = StatusEvent::where('event_id', $request->id)->get();
+        $yes = count($participants->where('status', 1));
+        $no = count($participants->where('status', 0));
+        $perhaps = count($participants->where('status', 2));
+        return ['yes' => $yes, 'no' => $no, 'perhaps' => $perhaps];
+    }
+
+    public function getEventsOnMaimPage(Request $request)
+    {
+      /*  if ($request->type) {
             $posts->where('type', $request->type);
         }
         if ($request->provider_id) {
@@ -109,17 +130,13 @@ class EventController extends Controller
         }
         if ($request->category_id) {
             $posts->where('category_id', $request->category_id);
-        }
-    }
-    public function getMoreInformation(Request $request){
-        //Получить отзывы и статистику
-
-
-    }
-    public function getEventsOnMap (Request $request){
-
+        }*/
     }
 
+    public function getEventsOnMap(Request $request)
+    {
+
+    }
 
     protected function validateEvent(Request $request)
     {
@@ -138,6 +155,7 @@ class EventController extends Controller
         ];
         $this->validate($request, $rules);
     }
+
     protected function getLatCoordinates($geolocation)
     {
         $api = new Api('1.x');
@@ -149,6 +167,7 @@ class EventController extends Controller
         return $lat = $response->getLatitude();
 
     }
+
     protected function getLonCoordinates($geolocation)
     {
         $api = new Api('1.x');

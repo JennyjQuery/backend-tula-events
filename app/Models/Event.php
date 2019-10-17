@@ -23,11 +23,30 @@ class Event extends Model
         'geolocation',
         'organizer_id'
     ];
-    public function creater() {
-        return $this->belongsTo(User::class,'organizer_id');
-    }
-    public function reviews() {
-        return $this->belongsToMany(Review::class,'reviews');
+
+    public function eventInformation()
+    {
+        return $this->belongsTo(User::class, 'organizer_id');
     }
 
+    public function creater()
+    {
+        return $this->belongsTo(User::class, 'organizer_id');
+    }
+
+    public function getInformation()
+    {
+
+    }
+
+    public function reviews()
+    {
+        return $this->belongsToMany(User::class, 'reviews')->withPivot('comment', 'created_at');
+    }
+
+    public function statistic()
+    {
+        return $this->reviews()->count();
+
+    }
 }
